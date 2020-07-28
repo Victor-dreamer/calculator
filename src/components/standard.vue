@@ -15,23 +15,23 @@
       <div class="standard-button-item">CE</div>
       <div class="standard-button-item">C</div>
       <div class="standard-button-item">?</div>
-      <div class="standard-button-item operators" @click="input('/')">/</div>
-      <div class="standard-button-item num" @click="input(7)">7</div>
-      <div class="standard-button-item num" @click="input(8)">8</div>
-      <div class="standard-button-item num" @click="input(9)">9</div>
-      <div class="standard-button-item operators" @click="input('*')">X</div>
-      <div class="standard-button-item num" @click="input(4)">4</div>
-      <div class="standard-button-item num" @click="input(5)">5</div>
-      <div class="standard-button-item num" @click="input(6)">6</div>
-      <div class="standard-button-item operators" @click="input('-')">-</div>
-      <div class="standard-button-item num" @click="input(1)">1</div>
-      <div class="standard-button-item num" @click="input(2)">2</div>
-      <div class="standard-button-item num" @click="input(3)">3</div>
-      <div class="standard-button-item operators" @click="input('+')">+</div>
+      <div class="standard-button-item operators" @click="inputOperator('/')">/</div>
+      <div class="standard-button-item num" @click="inputNum(7)">7</div>
+      <div class="standard-button-item num" @click="inputNum(8)">8</div>
+      <div class="standard-button-item num" @click="inputNum(9)">9</div>
+      <div class="standard-button-item operators" @click="inputOperator('*')">X</div>
+      <div class="standard-button-item num" @click="inputNum(4)">4</div>
+      <div class="standard-button-item num" @click="inputNum(5)">5</div>
+      <div class="standard-button-item num" @click="inputNum(6)">6</div>
+      <div class="standard-button-item operators" @click="inputOperator('-')">-</div>
+      <div class="standard-button-item num" @click="inputNum(1)">1</div>
+      <div class="standard-button-item num" @click="inputNum(2)">2</div>
+      <div class="standard-button-item num" @click="inputNum(3)">3</div>
+      <div class="standard-button-item operators" @click="inputOperator('+')">+</div>
       <div class="standard-button-item">+-</div>
-      <div class="standard-button-item num" @click="input(0)">0</div>
+      <div class="standard-button-item num" @click="inputNum(0)">0</div>
       <div class="standard-button-item">.</div>
-      <div class="standard-button-item operators" @click="input('=')">=</div>
+      <div class="standard-button-item operators" @click="getResult">=</div>
     </div>
   </div>
 </template>
@@ -40,8 +40,14 @@
 export default {
   name: 'standard',
   methods: {
-    input (value) {
-      this.$store.commit('inputScreen', value)
+    inputNum (value) {
+      this.$store.commit('inputNum', value)
+    },
+    inputOperator (value) {
+      this.$store.commit('inputOperator', value)
+    },
+    getResult () {
+      this.$store.commit('getResult')
     }
   }
 }
@@ -79,7 +85,7 @@ export default {
         box-sizing: border-box;
         flex: 0 0 24.5%;
         height: 55px;
-        line-height: 50px;
+        line-height: 55px;
         text-align: center;
         font-size: 20px;
         margin: 1px 0;

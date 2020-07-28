@@ -2,8 +2,8 @@
   <div class="screen">
     <div class="menu-bar">
       <div class="type-menu">
-        <span class="span-menu"></span>
-        <div class="menu-choose">
+        <span class="span-menu" @click="showChoose"></span>
+        <div v-show="show === 1" class="menu-choose">
           <div class="menu-choose-item" @click="changeType(0)">Standard</div>
           <div class="menu-choose-item" @click="changeType(1)">Science</div>
           <div class="menu-choose-item" @click="changeType(2)">Programer</div>
@@ -24,16 +24,26 @@ export default {
   name: 'screen',
   data: function () {
     return {
-      type: ''
+      show: 0
     }
   },
   computed: {
     ...mapState(['calType']),
     ...mapGetters(['calTypeName', 'curScreen'])
   },
+  watch: {
+    calType: function () {
+      if (this.show === 1) {
+        this.show = 0
+      }
+    }
+  },
   methods: {
     changeType (type) {
       this.$store.commit('changeCalType', type)
+    },
+    showChoose () {
+      this.show = 1
     }
   }
 }
@@ -45,13 +55,8 @@ export default {
     .type-menu {
       position: relative;
       display: inline-block;
-      &:hover {
-        .menu-choose {
-          display: block;
-        }
-      }
       .menu-choose {
-        display: none;
+        // display: none;
         position: absolute;
         bottom: -90px;
         .menu-choose-item {
@@ -79,7 +84,7 @@ export default {
     line-height: 60px;
     font-size: 20px;
     font-weight: 700;
-    padding-right: 5px;
+    padding-right: 20px;
     text-align: right;
   }
 }
