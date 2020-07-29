@@ -15,7 +15,9 @@
     </div>
     <div class="cal-right">
       <div class="cal-right-title">
-        <span :class="isHistory" @click="changeCurrent(0)">历史记录</span>
+        <div v-if="calType !== 2">
+          <span :class="isHistory" @click="changeCurrent(0)">历史记录</span>
+        </div>
         <span :class="isMemory" @click="changeCurrent(1)">内存</span>
       </div>
       <div v-if="current === 1">
@@ -50,7 +52,16 @@ export default {
   },
   data: function () {
     return {
-      current: 1
+      current: 0
+    }
+  },
+  watch: {
+    calType: function (val) {
+      if (val === 2) {
+        this.current = 1
+      } else {
+        this.current = 0
+      }
     }
   },
   computed: {
@@ -108,6 +119,10 @@ export default {
     height: 500px;
     background-color: rgba(200, 200, 200, 0.7);
     .cal-right-title {
+      div {
+        display: inline-block;
+        vertical-align: middle;
+      }
       span {
         display: inline-block;
         vertical-align: middle;

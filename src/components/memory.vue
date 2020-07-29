@@ -1,12 +1,12 @@
 <template>
   <div class="memory">
-    <div v-if="memoryList.length" class="memory-list">
-      <div v-for="(item, index) in memoryList" v-bind:key="index" class="memory-item">
+    <div v-if="showMemoryList.length" class="memory-list">
+      <div v-for="(item, index) in showMemoryList" v-bind:key="index" class="memory-item" @click="memoryUse(showMemoryList.length-(index+1))">
         <div class="memory-item-val">{{ item }}</div>
         <div class="memory-item-operator">
-          <span>MC</span>
-          <span>M+</span>
-          <span>M-</span>
+          <span @click="memoryCut(showMemoryList.length-(index+1))">MC</span>
+          <span @click="memoryChange([1, showMemoryList.length-(index+1)])">M+</span>
+          <span @click="memoryChange([0, showMemoryList.length-(index+1)])">M-</span>
         </div>
       </div>
       <div class="delete">
@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState, mapGetters } from 'vuex'
 
 export default {
   name: 'memory',
@@ -30,11 +30,21 @@ export default {
     }
   },
   computed: {
-    ...mapState(['memoryList'])
+    ...mapState(['screenShow']),
+    ...mapGetters(['showMemoryList'])
   },
   methods: {
+    memoryCut (index) {
+      this.$store.commit('memoryCut', index)
+    },
+    memoryChange (args) {
+      this.$store.commit('memoryChange', args)
+    },
     deleteMemory () {
       this.$store.commit('deleteMemory')
+    },
+    memoryUse (index) {
+      this.$store.commit('memoryUse', index)
     }
   }
 }

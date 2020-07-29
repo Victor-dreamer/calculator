@@ -2,7 +2,7 @@
   <div class="screen">
     <div class="menu-bar">
       <div class="type-menu">
-        <span class="span-menu" @click="showChoose"></span>
+        <span class="span-menu" @click="showChoose">≡</span>
         <div v-show="show === 1" class="menu-choose">
           <div class="menu-choose-item" @click="changeType(0)">Standard</div>
           <div class="menu-choose-item" @click="changeType(1)">Science</div>
@@ -11,8 +11,11 @@
       </div>
       <span class="span-text">{{calTypeName}}</span>
     </div>
+    <div class="show-expression">
+      {{ expressionShow }}
+    </div>
     <div class="screen-view">
-      {{ curScreen }}
+      {{ screenShow }}
     </div>
   </div>
 </template>
@@ -28,8 +31,11 @@ export default {
     }
   },
   computed: {
-    ...mapState(['calType']),
-    ...mapGetters(['calTypeName', 'curScreen'])
+    ...mapState(['calType', 'expression', 'screenShow']),
+    ...mapGetters(['calTypeName']),
+    expressionShow: function () {
+      return this.expression.join(' ') || ''
+    }
   },
   watch: {
     calType: function () {
@@ -55,10 +61,24 @@ export default {
     .type-menu {
       position: relative;
       display: inline-block;
+      .span-menu {
+        display: inline-block;
+        vertical-align: middle;
+        width: 30px;
+        height: 32px;
+        line-height: 30px;
+        font-size: 35px;
+        text-align: center;
+        font-weight: 100;
+        &:hover {
+          background-color: rgba($color: #999, $alpha: 0.5) ;
+        }
+      }
       .menu-choose {
         // display: none;
         position: absolute;
         bottom: -90px;
+        left: -5px;
         .menu-choose-item {
           background-color: #aaa;
           width: 100px;
@@ -78,6 +98,13 @@ export default {
       @include spanText(30px);
       margin-left: 5px;
     }
+  }
+  .show-expression {
+    text-align: right;
+    margin-right: 10px;
+    height: 20px;
+    line-height: 20px;
+    font-size: 12px;
   }
   .screen-view {
     height: 60px;

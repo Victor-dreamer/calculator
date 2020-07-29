@@ -1,8 +1,8 @@
 <template>
   <div class="history">
     <div v-if="historyList.length">
-      <div v-for="(item, index) in historyList" v-bind:key="index" class="history-item">
-        <div class="history-expression">{{ item.expression }}</div>
+      <div v-for="(item, index) in historyList" v-bind:key="index" class="history-item" @click="historyUse(historyList.length-(index+1))">
+        <div class="history-expression">{{ item.expression + ' ' +'=' }}</div>
         <div class="history-result">{{ item.result }}</div>
       </div>
       <div class="delete">
@@ -16,21 +16,31 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'history',
   data: function () {
     return {
-      current: 0
+      showHistoryList: []
     }
   },
   computed: {
-    ...mapState(['historyList'])
+    ...mapGetters(['historyList'])
   },
   methods: {
     deleteHistory () {
       this.$store.commit('deleteHistory')
+    },
+    reverseArray (arr) {
+      let list = []
+      for (let i = 0; i < arr.length; i++) {
+        list[i] = arr[arr.length - (i + 1)]
+      }
+      return list
+    },
+    historyUse (index) {
+      this.$store.commit('historyUse', index)
     }
   }
 }
@@ -63,6 +73,20 @@ export default {
   }
   .history-item {
     height: 60px;
+    text-align: right;
+    &:hover {
+      background-color: #9f9f9f;
+    }
+    .history-expression {
+      margin-top: 5px;
+      font-size: 16px;
+      margin-right: 10px;
+    }
+    .history-result {
+      margin-top: 5px;
+      font-size: 24px;
+      margin-right: 10px;
+    }
   }
 }
 </style>

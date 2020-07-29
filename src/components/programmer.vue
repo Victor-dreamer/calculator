@@ -26,7 +26,7 @@
     </div>
     <div v-if="menu" class="programmer-content">
       <div class="programmer-button">
-        <div class="programmer-button-item">A</div>
+        <div class="programmer-button-item"><button disabled>A</button></div>
         <div class="programmer-button-item">A</div>
         <div class="programmer-button-item">A</div>
         <div class="programmer-button-item">A</div>
@@ -144,6 +144,7 @@ export default {
       align-content: flex-start;
       align-items: center;
       .programmer-button-item {
+        position: relative;
         box-sizing: border-box;
         flex: 0 0 16.2%;
         height: 38px;
@@ -155,6 +156,17 @@ export default {
         &:hover {
           background-color: rgba($color: #999, $alpha: 0.5);
           border: 1px solid rgba($color: #999999, $alpha: 1);
+        }
+        button {
+          padding: 0;
+          margin: 0;
+          width: 100%;
+          height: 100%;
+          border: none;
+          outline: none;
+          position: absolute;
+          left: 0;
+          top: 0;
         }
       }
     }
