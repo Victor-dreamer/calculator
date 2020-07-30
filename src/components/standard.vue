@@ -1,7 +1,7 @@
 <template>
   <div class='standard'>
     <div class='memory-button'>
-      <div class="memory-button-item" @click="memoryPop">MC</div>
+      <div class="memory-button-item" @click="calculate.memoryPop(this)">MC</div>
       <!-- 调用最后加入的内存 -->
       <div class="memory-button-item" @click="memoryUseLast">MR</div>
       <div class="memory-button-item" @click="memoryAdd">M+</div>
@@ -213,8 +213,7 @@ export default {
     },
     // 内存操作
     memorySave () {
-      let value = this.currentShow
-      this.$store.commit('memorySave', value)
+      this.$store.commit('memorySave', this.currentShow)
     },
     memoryPop () {
       this.$store.commit('memoryPop')

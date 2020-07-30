@@ -6,7 +6,7 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     // 计算类型
-    calType: 0,
+    calType: 2,
     // 表达式
     expression: [],
     // 当前的屏幕显示
