@@ -52,7 +52,7 @@ export default {
   },
   data: function () {
     return {
-      current: 0
+      current: 1
     }
   },
   watch: {
