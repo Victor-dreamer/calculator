@@ -13,7 +13,7 @@
         <Standard></Standard>
       </div>
     </div>
-    <div class="cal-right">
+    <!-- <div class="cal-right">
       <div class="cal-right-title">
         <div v-if="calType !== 2">
           <span :class="isHistory" @click="changeCurrent(0)">历史记录</span>
@@ -26,6 +26,9 @@
       <div v-else>
         <History></History>
       </div>
+    </div> -->
+    <div class="memory" v-if="showMemoryList">
+      <Memory></Memory>
     </div>
   </div>
 </template>
@@ -36,7 +39,7 @@ import Standard from './components/standard.vue'
 import Memory from './components/memory.vue'
 import Science from './components/science.vue'
 import Programmer from './components/programmer.vue'
-import History from './components/history.vue'
+// import History from './components/history.vue'
 // import './style/common.scss'
 import { mapState } from 'vuex'
 
@@ -47,12 +50,13 @@ export default {
     Standard,
     Memory,
     Science,
-    Programmer,
-    History
+    Programmer
+    // History
   },
   data: function () {
     return {
-      current: 1
+      current: 1,
+      showMemoryList: 0
     }
   },
   watch: {
@@ -92,6 +96,7 @@ export default {
 <style lang="scss">
 // @import url(./style/common.scss);
 #app {
+  position: relative;
   display: table;
   margin: 0.5rem auto;
   width: 80%;
@@ -112,30 +117,38 @@ export default {
       text-align: center;
     }
   }
-  .cal-right {
-    display: table-cell;
-    // 暂时设置为隐藏，后续需要改为自适应显示
-    display: none;
-    position: relative;
-    width: 6rem;
-    height: 10rem;
-    background-color: rgba(200, 200, 200, 0.7);
-    .cal-right-title {
-      div {
-        display: inline-block;
-        vertical-align: middle;
-      }
-      span {
-        @include spanText(1rem);
-        margin: 0.2rem 0.2rem;
-        font-size: 0.32rem;
-        font-weight: 700;
-        border-bottom: 0.08rem solid rgba(200, 200, 200, 0);
-      }
-      .current {
-        border-bottom: 0.08rem solid #0080ff;
-      }
-    }
+  .memory {
+    width: 100%;
+    height: 6.3rem;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    background-color: #f1f1f1;
   }
+  // .cal-right {
+  //   display: table-cell;
+  //   // 暂时设置为隐藏，后续需要改为自适应显示
+  //   display: none;
+  //   position: relative;
+  //   width: 6rem;
+  //   height: 10rem;
+  //   background-color: rgba(200, 200, 200, 0.7);
+  //   .cal-right-title {
+  //     div {
+  //       display: inline-block;
+  //       vertical-align: middle;
+  //     }
+  //     span {
+  //       @include spanText(1rem);
+  //       margin: 0.2rem 0.2rem;
+  //       font-size: 0.32rem;
+  //       font-weight: 700;
+  //       border-bottom: 0.08rem solid rgba(200, 200, 200, 0);
+  //     }
+  //     .current {
+  //       border-bottom: 0.08rem solid #0080ff;
+  //     }
+  //   }
+  // }
 }
 </style>

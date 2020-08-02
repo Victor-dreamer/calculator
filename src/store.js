@@ -18,7 +18,9 @@ export default new Vuex.Store({
     // 标准计算器的历史纪录
     standardHistory: [],
     // 科学计算器的历史记录
-    scienceHistory: []
+    scienceHistory: [],
+    // 是否显示内存
+    showMemory: 0
   },
   mutations: {
     commitExpression (state, value) {

@@ -9,12 +9,12 @@
           <span @click="memoryChange([0, showMemoryList.length-(index+1)])">M-</span>
         </div>
       </div>
-      <div class="delete">
-        <span @click="deleteMemory">Del</span>
-      </div>
     </div>
     <div v-else>
       暂时没有内存记录
+    </div>
+    <div class="delete">
+      <span @click="deleteMemory">Del</span>
     </div>
   </div>
 </template>
@@ -52,13 +52,14 @@ export default {
 
 <style lang='scss'>
 .memory {
-  display: none;
+  width: 100%;
+  position: relative;
   .memory-list {
-    height: 8rem;
+    height: 5.3rem;
     overflow: auto;
     .memory-item {
       width: 100%;
-      height: 1.4rem;
+      height: 1.8rem;
       &:hover {
         background-color: #9f9f9f;
         .memory-item-operator {
@@ -67,15 +68,18 @@ export default {
       }
       .memory-item-val {
         text-align: right;
-        height: 0.8rem;
-        line-height: 0.8rem;
-        font-size: 0.4rem;
+        height: 0.5rem;
+        line-height: 0.5rem;
+        font-size: 0.6rem;
+        padding-top: 0.3rem;
         margin-right: 0.44rem;
       }
       .memory-item-operator {
         text-align: right;
         display: none;
         margin-right: 0.4rem;
+        height: 0.8rem;
+        line-height: 0.8rem;
         span {
           @include spanText(0.4rem);
           background-color: #fff;
@@ -91,25 +95,24 @@ export default {
         }
       }
     }
-    .delete {
-      position: absolute;
-      right: 0;
-      bottom: 0;
-      width: 100%;
-      height: 0.8rem;
-      span {
-        float: right;
-        height: 0.5rem;
-        line-height: 0.5rem;
-        width: 1rem;
-        margin: 0 0.1rem 0.3rem 0;
-        text-align: center;
-        font-size: 0.08rem;
-        border: solid 0.02rem rgba($color: #000000, $alpha: 0);
-        &:hover {
-          border: 0.02rem solid #666;
-          background-color: #999;
-        }
+  }
+  .delete {
+    // position: absolute;
+    // right: 0;
+    // bottom: 0;
+    width: 100%;
+    height: 1rem;
+    background-color: rgba($color: #999, $alpha: 0.5);
+    span {
+      float: right;
+      height: 100%;
+      line-height: 1rem;
+      width: 1rem;
+      margin: 0 0.5rem 0 0;
+      text-align: center;
+      font-size: 0.4rem;
+      &:hover {
+        background-color: #999;
       }
     }
   }
