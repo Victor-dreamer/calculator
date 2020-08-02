@@ -52,12 +52,13 @@ export default {
 
 <style lang='scss'>
 .memory {
+  display: none;
   .memory-list {
-    height: 400px;
+    height: 8rem;
     overflow: auto;
     .memory-item {
       width: 100%;
-      height: 70px;
+      height: 1.4rem;
       &:hover {
         background-color: #9f9f9f;
         .memory-item-operator {
@@ -66,29 +67,25 @@ export default {
       }
       .memory-item-val {
         text-align: right;
-        height: 40px;
-        line-height: 40px;
-        font-size: 20px;
-        margin-right: 22px;
+        height: 0.8rem;
+        line-height: 0.8rem;
+        font-size: 0.4rem;
+        margin-right: 0.44rem;
       }
       .memory-item-operator {
         text-align: right;
         display: none;
-        margin-right: 20px;
+        margin-right: 0.4rem;
         span {
-          display: inline-block;
-          vertical-align: middle;
+          @include spanText(0.4rem);
           background-color: #fff;
           color: #000;
-          margin-right: 2px;
-          width: 35px;
-          height: 20px;
-          line-height: 20px;
-          font-size: 12px;
-          text-align: center;
-          border: 1px solid rgba($color: #000000, $alpha: 0);
+          margin-right: 0.04rem;
+          width: 0.7rem;
+          font-size: 0.24rem;
+          border: 0.02rem solid rgba($color: #000000, $alpha: 0);
           &:hover {
-            border: 1px solid #000000;
+            border: 0.02rem solid #000000;
             background-color: #0080ff;
           }
         }
@@ -99,17 +96,18 @@ export default {
       right: 0;
       bottom: 0;
       width: 100%;
-      height: 30px;
+      height: 0.8rem;
       span {
         float: right;
-        height: 25px;
-        line-height: 25px;
-        width: 50px;
-        margin: 0 5px 15px 0;
+        height: 0.5rem;
+        line-height: 0.5rem;
+        width: 1rem;
+        margin: 0 0.1rem 0.3rem 0;
         text-align: center;
-        border: solid 1px rgba($color: #000000, $alpha: 0);
+        font-size: 0.08rem;
+        border: solid 0.02rem rgba($color: #000000, $alpha: 0);
         &:hover {
-          border: 1px solid #666;
+          border: 0.02rem solid #666;
           background-color: #999;
         }
       }

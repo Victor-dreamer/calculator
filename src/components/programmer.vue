@@ -336,7 +336,7 @@ export default {
           this.inputScren[0] = value
         } else {
           let temp = this.inputScren.join('') + '' + value
-          if (this.isInAccuracy(parseInt(temp, this.systemType))) {
+          if (this.accuracyLimmit(parseInt(temp, this.systemType))) {
             this.inputScren.push(value)
           }
         }
@@ -467,11 +467,10 @@ export default {
     },
     // 获取负数的10进制表示
     getDEC (arr) {
-      // eslint-disable-next-line eqeqeq
-      if (arr[0] == 1 && arr.length === this.accuracyType) {
+      if ((arr[0] === 1 || arr[0] === '1') && arr.length === this.accuracyType) {
         let temp = (parseInt(this.getNegArr(arr.slice(1)).join(''), 2) + 1)
         // let temp = ~(parseInt(arr.join(''), 2) - 1)
-        console.log('转换了' + temp)
+        // console.log('转换了' + temp)
         return temp * -1
       } else {
         return parseInt(arr.join(''), 2)
@@ -638,47 +637,58 @@ export default {
 }
 .iconfont {
   font-family: "iconfont" !important;
-  font-size: 16px;
+  font-size: 0.32rem;
   font-style: normal;
   -webkit-font-smoothing: antialiased;
-  -webkit-text-stroke-width: 0.2px;
+  -webkit-text-stroke-width: 0.004rem;
   -moz-osx-font-smoothing: grayscale;
 }
 
 .programmer {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
   .programmer-system {
+    flex: 1.5;
+    overflow: hidden;
+    height: 2rem;
     .programmer-system-item {
-      margin-top: 2px;
-      padding-left: 10px;
-      height: 20px;
-      line-height: 20px;
-      border-left: 4px solid rgba($color: #999, $alpha: 0);
+      height: 22%;
+      margin-top: 0.04rem;
+      border-left: 0.08rem solid rgba($color: #999, $alpha: 0);
       &:hover {
         background-color: rgba($color: #999, $alpha: 0.5);
       }
-      div {
-        display: inline-block;
-        font-size: 10px;
-      }
       .system-val {
-        margin-left: 15px;
+        float: left;
+        height: 100%;
+        line-height: 0.45rem;
+        font-size: 0.2rem;
+        margin-left: 0.3rem;
       }
       .system-name {
-        width: 30px;
+        float: left;
+        height: 100%;
+        line-height: 0.45rem;
+        font-size: 0.2rem;
+        padding-left: 0.2rem;
+        text-align: center;
+        width: 0.6rem;
       }
     }
     .current-system {
-      border-left: 4px solid #0080ff;
+      border-left: 0.08rem solid #0080ff;
     }
   }
   .programmer-menu {
+    flex: 1;
     overflow: hidden;
-    margin-top: 10px;
+    margin-top: 0.2rem;
     div {
       width: 16.2%;
-      height: 38px;
-      line-height: 38px;
-      margin-right: 2px;
+      height: 0.8rem;
+      line-height: 0.8rem;
+      margin-right: 0.04rem;
       text-align: center;
       float: left;
       &:hover {
@@ -686,17 +696,19 @@ export default {
       }
     }
     .chooseSystem {
-      width: 80px;
-      margin: 0 40px;
+      width: 16.2%;
+      margin: 0 1rem;
+      font-size: 0.28rem;
     }
     .memory-button {
       float: right;
-      font-size: 14px;
+      font-size: 0.28rem;
     }
   }
   .programmer-content {
-    height: 240px;
-    margin-top: 2px;
+    flex: 5;
+    height: 4.8rem;
+    margin-top: 0.04rem;
     .programmer-button {
       display: flex;
       flex-flow: row wrap;
@@ -707,11 +719,11 @@ export default {
         position: relative;
         box-sizing: border-box;
         flex: 0 0 16.2%;
-        height: 38px;
-        line-height: 38px;
+        height: 1rem;
+        line-height: 1rem;
         text-align: center;
-        font-size: 20px;
-        margin: 1px 0;
+        font-size: 0.4rem;
+        margin: 0.02rem 0;
         button {
           padding: 0;
           margin: 0;
@@ -723,16 +735,16 @@ export default {
           left: 0;
           top: 0;
           background-color: rgba($color: #fff, $alpha: 0.8);
-          border: 1px solid rgba($color: #000000, $alpha: 0);
+          border: 0.02rem solid rgba($color: #000000, $alpha: 0);
           &:hover {
             background-color: rgba($color: #999, $alpha: 0.5);
-            border: 1px solid rgba($color: #999999, $alpha: 1);
+            border: 0.02rem solid rgba($color: #999999, $alpha: 1);
           }
         }
         button[disabled] {
           &:hover {
             background-color: rgba($color: #fff, $alpha: 0.8);
-            border: 1px solid rgba($color: #999999, $alpha: 0);
+            border: 0.02rem solid rgba($color: #999999, $alpha: 0);
           }
         }
         .operator:hover {

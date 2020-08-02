@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="content">
     <div class="bitKeyboard">
       <input v-for="(item, index) in this.array" :key="index" type="button"
       :value="item" @click="change(index)"
@@ -60,7 +60,7 @@ export default {
     getDEG (arr) {
       let flag = 1
       let temp
-      if (arr[this.accuracy] === 1) { // 负数
+      if (arr[this.accuracy] === 1 || arr[this.accuracy] === '1') { // 负数
         flag = -1
         temp = (parseInt(this.getNeg(arr.slice(this.accuracy + 1)).join(''), 2) + 1)
       } else {
@@ -87,6 +87,9 @@ export default {
 </script>
 
 <style lang='scss'>
+.content {
+  margin-left: 0.02rem;
+}
 
 .bitKeyboard {
   width: 100%;
@@ -97,13 +100,14 @@ export default {
     flex: 0 0 5%;
     display: inline-block;
     width: 5%;
-    height: 38px;
-    line-height: 38px;
+    height: 0.76rem;
+    line-height: 0.76rem;
     text-align: center;
-    font-size: 20px;
+    font-size: 0.4rem;
     border: none;
-    margin: 2px 0;
+    margin: 0.04rem 0;
     outline: none;
+    background: none;
   }
   .item0,
   .item1,

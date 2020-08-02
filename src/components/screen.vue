@@ -64,10 +64,10 @@ export default {
       .span-menu {
         display: inline-block;
         vertical-align: middle;
-        width: 30px;
-        height: 32px;
-        line-height: 30px;
-        font-size: 35px;
+        width: 0.6rem;
+        height: 0.62rem;
+        line-height: 0.6rem;
+        font-size: 0.7rem;
         text-align: center;
         font-weight: 100;
         &:hover {
@@ -77,16 +77,16 @@ export default {
       .menu-choose {
         // display: none;
         position: absolute;
-        bottom: -90px;
-        left: -5px;
+        bottom: -1.8rem;
+        left: -0.1rem;
         .menu-choose-item {
           background-color: #aaa;
-          width: 100px;
-          height: 30px;
-          line-height: 30px;
+          width: 2rem;
+          height: 0.6rem;
+          line-height: 0.6rem;
           text-align: center;
-          margin-left: 5px;
-          border-bottom: 1px solid #9f9f9f;
+          margin-left: 0.1rem;
+          border-bottom: 0.02rem solid #9f9f9f;
           &:hover {
             cursor: pointer;
             background-color: #fff;
@@ -95,23 +95,24 @@ export default {
       }
     }
     .span-text {
-      @include spanText(30px);
-      margin-left: 5px;
+      @include spanText(0.6rem);
+      margin-left: 0.1rem;
+      font-size: 0.5rem;
     }
   }
   .show-expression {
     text-align: right;
-    margin-right: 10px;
-    height: 20px;
-    line-height: 20px;
-    font-size: 12px;
+    margin-right: 0.2rem;
+    height: 0.4rem;
+    line-height: 0.4rem;
+    font-size: 0.24rem;
   }
   .screen-view {
-    height: 60px;
-    line-height: 60px;
-    font-size: 20px;
-    font-weight: 700;
-    padding-right: 20px;
+    height: 1.5rem;
+    line-height: 1.5rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding-right: 0.4rem;
     text-align: right;
   }
 }

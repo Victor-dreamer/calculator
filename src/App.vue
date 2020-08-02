@@ -93,30 +93,32 @@ export default {
 // @import url(./style/common.scss);
 #app {
   display: table;
-  margin: 50px auto;
-  width: 70%;
-  min-width: 700px;
-  height: 500px;
+  margin: 0.5rem auto;
+  width: 80%;
+  // min-width: 10rem;
+  height: 12rem;
   background-color: rgba(200, 200, 200, 0.7);
-  border: 1px solid #000000;
-  box-shadow: 0 0 15px #666;
-  padding: 5px;
+  border: 0.02rem solid #000000;
+  box-shadow: 0 0 0.33rem #666;
+  padding: 0.1rem;
   .cal-left {
-    min-width: 280px;
+    min-width: 6.8rem;
     display: table-cell;
     background-color: rgba(200, 200, 200, 0.7);
     .title {
-      margin: 0 0 10px 0;
-      width: 80px;
-      font-size: 20px;
+      margin: 0 0 0.2rem 0;
+      width: 1.6rem;
+      font-size: 0.4rem;
       text-align: center;
     }
   }
   .cal-right {
     display: table-cell;
+    // 暂时设置为隐藏，后续需要改为自适应显示
+    display: none;
     position: relative;
-    width: 300px;
-    height: 500px;
+    width: 6rem;
+    height: 10rem;
     background-color: rgba(200, 200, 200, 0.7);
     .cal-right-title {
       div {
@@ -124,18 +126,14 @@ export default {
         vertical-align: middle;
       }
       span {
-        display: inline-block;
-        vertical-align: middle;
-        height: 50px;
-        line-height: 50px;
-        text-align: center;
-        margin: 10px 10px ;
-        font-size: 16px;
+        @include spanText(1rem);
+        margin: 0.2rem 0.2rem;
+        font-size: 0.32rem;
         font-weight: 700;
-        border-bottom: 4px solid rgba(200, 200, 200, 0);
+        border-bottom: 0.08rem solid rgba(200, 200, 200, 0);
       }
       .current {
-        border-bottom: 4px solid #0080ff
+        border-bottom: 0.08rem solid #0080ff;
       }
     }
   }
