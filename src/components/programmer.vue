@@ -100,8 +100,8 @@
           <button class="background operator" @click="inputOperator('+')">+</button>
         </div>
         <!-- 6 -->
-        <div class="programmer-button-item"><button class="background" @click="inputOperator('(')">(</button></div>
-        <div class="programmer-button-item"><button class="background" @click="inputOperator(')')">)</button></div>
+        <div class="programmer-button-item"><button class="background" @click="inputBrackets('(')">(</button></div>
+        <div class="programmer-button-item"><button class="background" @click="inputBrackets(')')">)</button></div>
         <div class="programmer-button-item"><button class="background">±</button></div>
         <div class="programmer-button-item"><button @click="inputNum(0)">0</button></div>
         <div class="programmer-button-item background">.</div>
@@ -138,12 +138,19 @@ export default {
       // 存放计算的表达式数组
       expressions: [],
       accuracy: 0,
-      accuracyCenter: 0
+      accuracyCenter: 0,
+      // 记录左括号数量
+      leftBrackets: 0
     }
   },
   watch: {
+    // 提交当前显示的数值
     currentShow: function (val) {
       this.$store.commit('commitNum', val)
+    },
+    // 提交表达式
+    expressions: function (val) {
+      this.$store.commit('commitExpression', val)
     }
   },
   computed: {
@@ -162,15 +169,15 @@ export default {
           return 64
       }
     },
+    // 当前屏幕显示的数值
     currentShow: function () {
       return this.currentNum || this.inputScren.join('') || 0
     },
+    // 不同进制显示的数值
     showDEC: function () {
-      let temp = 0
-      if (this.inputScren.length !== 0) {
-        temp = parseInt(this.inputScren.join(''), this.systemType)
-      }
-      if (temp > Math.pow(2, this.accuracyType - 1) - 1) {
+      // 判断当前输入的数值是否超过当前精度所能表示的最大正数
+      // 若超过，表示为负数
+      if (this.currentShow > Math.pow(2, this.accuracyType - 1) - 1) {
         return this.getDEC(this.inputScren)
       } else {
         return parseInt(this.currentShow, this.systemType)
@@ -178,18 +185,10 @@ export default {
       // return parseInt(this.currentShow, this.systemType)
     },
     showHEX: function () {
-      if (this.showDEC < 0) {
-        return parseInt(this.showBIN, 2).toString(16)
-      } else {
-        return this.showDEC.toString(16)
-      }
+      return parseInt(this.showBIN, 2).toString(16)
     },
     showOCT: function () {
-      if (this.showDEC < 0) {
-        return parseInt(this.showBIN, 2).toString(8)
-      } else {
-        return this.showDEC.toString(8)
-      }
+      return parseInt(this.showBIN, 2).toString(8)
     },
     showBIN: function () {
       if (this.showDEC < 0) {
@@ -214,16 +213,23 @@ export default {
     }
   },
   methods: {
-    //  检查数字是否符合当前精度
-    isInAccuracy (num) {
-      let temp = num.toString(2)
-      // console.log('结果精度' + temp.length)
-      // console.log(temp)
-      if (temp.length > this.accuracyType) {
-        return false
-      } else {
-        return true
-      }
+    // //  检查数字是否符合当前精度
+    // isInAccuracy (num) {
+    //   let temp = num.toString(2)
+    //   // console.log('结果精度' + temp.length)
+    //   // console.log(temp)
+    //   if (temp.length > this.accuracyType) {
+    //     return false
+    //   } else {
+    //     return true
+    //   }
+    // },
+
+    // 判断是否操作符
+    isOperator (sign) {
+      // eslint-disable-next-line no-useless-escape
+      const reg = /[\+, \*, \÷, \(, \-, \%, \|, \^, \&]/
+      return reg.test(sign)
     },
     // 改变精度
     changeAccuracy () {
@@ -272,6 +278,52 @@ export default {
       this.systemType = val
     },
     // 输入及计算操作
+    // 输入括号
+    inputBrackets (val) {
+      // 表达式为空时，左括号直接加入
+      if (this.expressions.length === 0) {
+        if (val === '(') {
+          // 略过当前输入的数值
+          if (this.inputScren.length !== 0) {
+            this.$store.commit('commitCurrentNum', this.currentShow)
+            this.inputScren = []
+          }
+          this.expressions.push(val)
+          this.leftBrackets++
+        }
+      } else {
+        if (val === '(') {
+          if (!isNaN(this.expressions[this.expressions.length - 1])) {
+            return
+          }
+          if (this.expressions[this.expressions.length - 1] === ')') {
+            return
+          }
+          this.expressions.push(val)
+          this.leftBrackets++
+        }
+        if (val === ')') {
+          if (this.inputScren.length !== 0) {
+            this.expressions.push(this.currentShow)
+            this.expressions.push(val)
+            this.inputScren = []
+            this.isInputOperator = false
+            return
+          }
+          if (this.isInputOperator === true) {
+            return
+          }
+          if (this.expressions[this.expressions.length - 1] === '(') {
+            return
+          }
+          if (this.leftBrackets <= 0) {
+            return
+          }
+          this.expressions.push(val)
+          this.leftBrackets--
+        }
+      }
+    },
     // 输入数字
     inputNum (value) {
       if (this.currentNum !== '') {
@@ -301,6 +353,7 @@ export default {
         this.isInputOperator = true
         return
       }
+      // 如果当前有输入的数字，先将数字添加进表达式
       if (this.inputScren.length !== 0) {
         this.expressions.push(this.currentShow)
         this.inputScren = []
@@ -309,12 +362,13 @@ export default {
         return
       }
       if (this.inputScren.length === 0) {
+        // 判断是表达式末尾是否为操作符，若是则进行替换
         if (this.isInputOperator) {
           this.expressions[this.expressions.length - 1] = value
         }
       }
     },
-    // 获取结果
+    // 提交'='号，即获取结果
     getResult () {
       if (this.inputScren.length === 0 && this.expressions.length === 0) {
         if (this.currentNum === '') {
@@ -330,10 +384,7 @@ export default {
         this.expressions.push(this.currentShow)
         this.inputScren = []
       }
-      // eslint-disable-next-line no-useless-escape
-      let regOp = /[\+, \*, \÷, \(, \), \-, \~, \%, \|, \^, \&]/
-      let lastOperator = this.expressions[this.expressions.length - 1]
-      if (regOp.test(lastOperator)) {
+      if (this.isOperator(this.expressions[this.expressions.length - 1])) {
         this.expressions.pop()
       }
       // 对不同进制进行转换
@@ -362,6 +413,10 @@ export default {
       this.$store.commit('commitCurrentNum', res)
       this.expressions = []
       this.isInputOperator = false
+    },
+    // 转换数值的正负
+    getNegative (value) {
+      return ~value + 1
     },
     // 判断是否溢出当前精度，若溢出，则进行截取
     accuracyLimmit (num) {
@@ -394,10 +449,10 @@ export default {
     memorySave () {
       this.$store.commit('memorySave', this.currentShow)
     },
-    // 获取负数补码
+    // 将负数十进制转为2进制补码
     getComplement (num) {
       let temp = Math.abs(num).toString(2)
-      let arr = temp.split('')
+      let arr = temp.split('').slice(1)
       console.log('转换数组：' + arr)
       if (temp.length < this.accuracyType) {
         for (let i = 0; i < this.accuracyType - temp.length - 1; i++) {
@@ -406,16 +461,15 @@ export default {
         console.log('补充精度：' + arr)
       }
       // 取反及 +1
-      temp = this.getAddOne(this.getNeg(arr))
+      temp = this.getAddOne(this.getNegArr(arr))
       console.log('补码数组：' + [1].concat(temp))
       return [1].concat(temp)
     },
     // 获取负数的10进制表示
-    // 需要改进，增加判断是否超过当前精度
     getDEC (arr) {
       // eslint-disable-next-line eqeqeq
       if (arr[0] == 1 && arr.length === this.accuracyType) {
-        let temp = (parseInt(this.getNeg(arr.slice(1)).join(''), 2) + 1)
+        let temp = (parseInt(this.getNegArr(arr.slice(1)).join(''), 2) + 1)
         // let temp = ~(parseInt(arr.join(''), 2) - 1)
         console.log('转换了' + temp)
         return temp * -1
@@ -435,11 +489,11 @@ export default {
           break
         }
       }
-      console.log('加一：' + arr)
+      // console.log('加一：' + arr)
       return arr
     },
-    // 按位取反
-    getNeg (arr) {
+    // 对一个二进制数组进行按位取反
+    getNegArr (arr) {
       const temp = arr.map((val) => {
         if (val + 1 >= 2) {
           return 0
@@ -447,7 +501,7 @@ export default {
           return 1
         }
       })
-      console.log('取反：' + temp)
+      // console.log('取反：' + temp)
       return temp
     },
     // 将中缀表达式转换为后缀表达式

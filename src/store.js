@@ -21,6 +21,9 @@ export default new Vuex.Store({
     scienceHistory: []
   },
   mutations: {
+    commitExpression (state, value) {
+      state.expression = value
+    },
     commitCurrentNum (state, value) {
       state.currentNum = value
     },
