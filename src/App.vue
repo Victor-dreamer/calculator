@@ -14,25 +14,29 @@
       </div>
       <div v-if="showMemory">
         <div class="hideBg" @click="changeShowMemory"></div>
-        <div class="memory">
+        <div class="little-memory">
           <Memory></Memory>
         </div>
       </div>
     </div>
-    <!-- <div class="cal-right">
+    <div v-if="isclientWidth" class="cal-right">
       <div class="cal-right-title">
-        <div v-if="calType !== 2">
+        <!-- <div v-if="calType !== 2">
           <span :class="isHistory" @click="changeCurrent(0)">历史记录</span>
         </div>
-        <span :class="isMemory" @click="changeCurrent(1)">内存</span>
+        <span :class="isMemory" @click="changeCurrent(1)">内存</span> -->
+        <span>内存</span>
       </div>
-      <div v-if="current === 1">
+      <!-- <div v-if="current === 1">
         <Memory></Memory>
       </div>
       <div v-else>
         <History></History>
+      </div> -->
+      <div class="right-memory">
+        <Memory></Memory>
       </div>
-    </div> -->
+    </div>
   </div>
 </template>
 
@@ -59,7 +63,8 @@ export default {
   data: function () {
     return {
       current: 1,
-      showMemoryList: 0
+      showMemoryList: 0,
+      clientWidth: document.documentElement.clientWidth || document.body.clientWidth
     }
   },
   watch: {
@@ -71,8 +76,21 @@ export default {
       }
     }
   },
+  created () {
+    window.addEventListener('resize', this.handleResize)
+  },
+  beforeDestroy: function () {
+    window.removeEventListener('resize', this.handleResize)
+  },
   computed: {
     ...mapState(['calType', 'showMemory']),
+    isclientWidth: function () {
+      if (this.clientWidth > 750) {
+        return true
+      } else {
+        return false
+      }
+    },
     isHistory: function () {
       if (this.current === 0) {
         return 'current'
@@ -89,6 +107,9 @@ export default {
     }
   },
   methods: {
+    handleResize (event) {
+      this.clientWidth = document.documentElement.clientWidth || document.body.clientWidth
+    },
     changeShowMemory () {
       this.$store.commit('changeShowMemory', !this.showMemory)
     },
@@ -106,7 +127,6 @@ export default {
   margin: 0.5rem auto;
   width: 80%;
   // min-width: 10rem;
-  height: 12rem;
   background-color: $themeColor;
   border: 0.02rem solid #000000;
   box-shadow: 0 0 0.33rem #999;
@@ -132,7 +152,7 @@ export default {
       background-color: #999;
       opacity: 0.5;
     }
-    .memory {
+    .little-memory {
       // display: none;
       width: 100%;
       height: 6.3rem;
@@ -146,11 +166,12 @@ export default {
   .cal-right {
     display: table-cell;
     // 暂时设置为隐藏，后续需要改为自适应显示
-    display: none;
     position: relative;
-    width: 6rem;
-    height: 10rem;
-    background-color: rgba(200, 200, 200, 0.7);
+    width: 5rem;
+    height: 100%;
+    margin-top: 2rem;
+    margin-left: 0.2rem;
+    background-color: $themeColor;
     .cal-right-title {
       div {
         display: inline-block;
@@ -161,7 +182,7 @@ export default {
         margin: 0.2rem 0.2rem;
         font-size: 0.32rem;
         font-weight: 700;
-        border-bottom: 0.08rem solid rgba(200, 200, 200, 0);
+        border-bottom: 0.08rem solid transparent;
       }
       .current {
         border-bottom: 0.08rem solid #0080ff;

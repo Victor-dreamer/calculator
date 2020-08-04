@@ -32,7 +32,7 @@
         <div class="programmer-button-item"><button class="background" @click="inputOperator('Rsh')">Rsh</button></div>
         <div class="programmer-button-item"><button class="background" @click="inputOperator('|')">Or</button></div>
         <div class="programmer-button-item"><button class="background" @click="inputOperator('^')">Xor</button></div>
-        <div class="programmer-button-item"><button class="background" @click="inputOperator('~')">Not</button></div>
+        <div class="programmer-button-item"><button class="background" @click="inputunaryoperator('~')">Not</button></div>
         <div class="programmer-button-item"><button class="background" @click="inputOperator('&')">And</button></div>
         <!-- 2 -->
         <div class="programmer-button-item"><button class="background">↑</button></div>
@@ -103,7 +103,7 @@
         <!-- 6 -->
         <div class="programmer-button-item"><button class="background" @click="inputBrackets('(')">(</button></div>
         <div class="programmer-button-item"><button class="background" @click="inputBrackets(')')">)</button></div>
-        <div class="programmer-button-item"><button class="background">±</button></div>
+        <div class="programmer-button-item"><button class="background" @click="inputunaryoperator('neg')">±</button></div>
         <div class="programmer-button-item"><button @click="inputNum(0)">0</button></div>
         <div class="programmer-button-item background">.</div>
         <div class="programmer-button-item">
@@ -137,6 +137,8 @@ export default {
       isInputOperator: false,
       // 存放计算的表达式数组
       expressions: [],
+      // 存储上一次运算的最后一步
+      history: {},
       accuracy: 0,
       accuracyCenter: 0,
       // 记录左括号数量
@@ -212,17 +214,17 @@ export default {
     }
   },
   methods: {
-    // //  检查数字是否符合当前精度
-    // isInAccuracy (num) {
-    //   let temp = num.toString(2)
-    //   // console.log('结果精度' + temp.length)
-    //   // console.log(temp)
-    //   if (temp.length > this.accuracyType) {
-    //     return false
-    //   } else {
-    //     return true
-    //   }
-    // },
+    //  检查数字是否符合当前精度
+    isInAccuracy (num) {
+      let temp = num.toString(2)
+      // console.log('结果精度' + temp.length)
+      // console.log(temp)
+      if (temp.length > this.accuracyType) {
+        return false
+      } else {
+        return true
+      }
+    },
 
     changeShowMemory () {
       this.$store.commit('changeShowMemory', !this.showMemory)
@@ -338,7 +340,7 @@ export default {
           this.inputScren[0] = value
         } else {
           let temp = this.inputScren.join('') + '' + value
-          if (this.accuracyLimmit(parseInt(temp, this.systemType))) {
+          if (this.isInAccuracy(parseInt(temp, this.systemType))) {
             this.inputScren.push(value)
           }
         }
@@ -373,12 +375,16 @@ export default {
     // 提交'='号，即获取结果
     getResult () {
       if (this.inputScren.length === 0 && this.expressions.length === 0) {
-        if (this.currentNum === '') {
-          return
-        }
-        if (this.currentNum !== '') {
-          // 将当前结果进行上一个表达式的最后一步操作运算，待完善
-          this.expressions.push(this.currentNum)
+        // 将当前结果进行上一个表达式的最后一步操作运算，待完善
+        if (JSON.stringify(this.history) !== '{}') {
+          if (this.currentNum === '') {
+            this.expressions.push(0)
+          }
+          if (this.currentNum !== '') {
+            this.expressions.push(this.currentNum)
+          }
+          this.expressions.push(this.history['op'])
+          this.expressions.push(this.history['num'])
           this.$store.commit('commitCurrentNum', '')
         }
       }
@@ -417,6 +423,19 @@ export default {
       this.expressions = []
       this.isInputOperator = false
     },
+    inputunaryoperator (value) {
+      let res
+      if (this.currentNum !== '') {
+        res = this.computeUnaryoperator(value, this.currentNum)
+        this.$store.commit('commitCurrentNum', res)
+        return
+      }
+      if (this.inputScren.length !== 0) {
+        res = this.computeUnaryoperator(value, this.currentShow)
+        this.inputScren = []
+        this.$store.commit('commitCurrentNum', res)
+      }
+    },
     // 转换数值的正负
     getNegative (value) {
       return ~value + 1
@@ -447,6 +466,7 @@ export default {
       this.inputScren = []
       this.expressions = []
       this.$store.commit('commitCurrentNum', '')
+      this.history = {}
     },
     // 内存操作
     memorySave () {
@@ -459,7 +479,7 @@ export default {
       let arr = temp.split('').slice(1)
       console.log('转换数组：' + arr)
       if (temp.length < this.accuracyType) {
-        for (let i = 0; i < this.accuracyType - temp.length - 1; i++) {
+        for (let i = 0; i < this.accuracyType - temp.length; i++) {
           arr.splice(0, 0, 0)
         }
         console.log('补充精度：' + arr)
@@ -561,7 +581,7 @@ export default {
           }
         }
       }
-      while (stack.length !== 0) {
+      while (stack.length !== 0 && stack[stack.length - 1] !== '(') {
         temp.push(stack.pop())
       }
       return temp
@@ -573,84 +593,89 @@ export default {
         let ele = temp.shift()
         if (!isNaN(ele)) {
           stack.push(ele)
-        }
-        let num1, num2, num3
-        switch (ele) {
-          case '+':
-            num1 = stack.pop()
-            num2 = stack.pop()
-            num3 = num2 + num1
-            stack.push(num3)
-            // console.log('计算结果' + num3)
-            break
-          case '-':
-            num1 = stack.pop()
-            num2 = stack.pop()
-            num3 = num2 - num1
-            stack.push(num3)
-            // console.log('计算结果' + num3)
-            break
-          case '*':
-            num1 = stack.pop()
-            num2 = stack.pop()
-            num3 = num2 * num1
-            stack.push(num3)
-            // console.log('计算结果' + num3)
-            break
-          case '/':
-            num1 = stack.pop()
-            num2 = stack.pop()
-            num3 = Math.floor(num2 / num1)
-            stack.push(num3)
-            // console.log('计算结果' + num3)
-            break
-          case '%':
-            num1 = stack.pop()
-            num2 = stack.pop()
-            num3 = num2 % num1
-            stack.push(num3)
-            // console.log('计算结果' + num3)
-            break
-          case 'Lsh':
-            num1 = stack.pop()
-            num2 = stack.pop()
-            num3 = num2 << num1
-            stack.push(num3)
-            // console.log('计算结果' + num3)
-            break
-          case 'Rsh':
-            num1 = stack.pop()
-            num2 = stack.pop()
-            num3 = num2 >> num1
-            stack.push(num3)
-            // console.log('计算结果' + num3)
-            break
-          case '&':
-            num1 = stack.pop()
-            num2 = stack.pop()
-            num3 = num2 & num1
-            stack.push(num3)
-            // console.log('计算结果' + num3)
-            break
-          case '|':
-            num1 = stack.pop()
-            num2 = stack.pop()
-            num3 = num2 | num1
-            stack.push(num3)
-            // console.log('计算结果' + num3)
-            break
-          case '^':
-            num1 = stack.pop()
-            num2 = stack.pop()
-            num3 = num2 ^ num1
-            stack.push(num3)
-            // console.log('计算结果' + num3)
-            break
-          default:
-            break
+        } else {
+          let num1, num2, num3
+          switch (ele) {
+            case '+':
+              num1 = stack.pop()
+              num2 = stack.pop()
+              num3 = num2 + num1
+              break
+            case '-':
+              num1 = stack.pop()
+              num2 = stack.pop()
+              num3 = num2 - num1
+              break
+            case '*':
+              num1 = stack.pop()
+              num2 = stack.pop()
+              num3 = num2 * num1
+              break
+            case '/':
+              num1 = stack.pop()
+              num2 = stack.pop()
+              num3 = Math.floor(num2 / num1)
+              break
+            case '%':
+              num1 = stack.pop()
+              num2 = stack.pop()
+              num3 = num2 % num1
+              break
+            case 'Lsh':
+              num1 = stack.pop()
+              num2 = stack.pop()
+              num3 = num2 << num1
+              break
+            case 'Rsh':
+              num1 = stack.pop()
+              num2 = stack.pop()
+              num3 = num2 >> num1
+              break
+            case '&':
+              num1 = stack.pop()
+              num2 = stack.pop()
+              num3 = num2 & num1
+              break
+            case '|':
+              num1 = stack.pop()
+              num2 = stack.pop()
+              num3 = num2 | num1
+              break
+            case '^':
+              num1 = stack.pop()
+              num2 = stack.pop()
+              num3 = num2 ^ num1
+              break
+            default:
+              break
+          }
+          // 每一步运算结果进行精度截取
+          num3 = this.accuracyLimmit(num3)
+          stack.push(num3)
+          // 存储最后一步，以便进行连等
+          if (temp.length === 0) {
+            this.history = {
+              num: num1,
+              op: ele
+            }
+          }
         }
       }
       return stack[0]
+    },
+    // 计算一元操作符
+    computeUnaryoperator (op, num) {
+      let result
+      switch (op) {
+        case '~':
+          result = ~num
+          return result
+        case 'neg':
+          result = ~num + 1
+          return result
+        default:
+          break
+      }
     }
   }
 }
