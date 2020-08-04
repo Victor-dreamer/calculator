@@ -20,15 +20,28 @@ export default new Vuex.Store({
     // 科学计算器的历史记录
     scienceHistory: [],
     // 是否显示内存
-    showMemory: 0
+    showMemory: false,
+    // 当前进制
+    systemType: 10
   },
   mutations: {
+    // 更新进制
+    changeSystemType (state, value) {
+      state.systemType = value
+    },
+    // 控制是否显示内存
+    changeShowMemory (state, value) {
+      state.showMemory = value
+    },
+    // 更新表达式
     commitExpression (state, value) {
       state.expression = value
     },
+    // 更新计算结果
     commitCurrentNum (state, value) {
       state.currentNum = value
     },
+    // 更新屏幕当前显示数值
     commitNum (state, value) {
       state.screenShow = value
     },
@@ -68,7 +81,7 @@ export default new Vuex.Store({
       state.memoryList.splice(index, 1)
     },
     memoryChange (state, args) {
-      let val = state.screenShow
+      let val = parseInt(state.screenShow, state.systemType)
       if (args[0] === 1) {
         state.memoryList.splice(args[1], 1, (state.memoryList[args[1]] + val))
       }

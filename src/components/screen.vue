@@ -3,7 +3,7 @@
     <div class="menu-bar">
       <div class="type-menu">
         <span class="span-menu" @click="showChoose">≡</span>
-        <div v-show="show === 1" class="menu-choose">
+        <div v-show="show" class="menu-choose" @mouseleave="hideMenu">
           <div class="menu-choose-item" @click="changeType(0)">Standard</div>
           <div class="menu-choose-item" @click="changeType(1)">Science</div>
           <div class="menu-choose-item" @click="changeType(2)">Programer</div>
@@ -45,6 +45,9 @@ export default {
     }
   },
   methods: {
+    hideMenu () {
+      this.show = 0
+    },
     changeType (type) {
       this.$store.commit('changeCalType', type)
     },
@@ -81,10 +84,11 @@ export default {
         left: -0.1rem;
         .menu-choose-item {
           background-color: #aaa;
-          width: 2rem;
+          width: 3rem;
           height: 0.6rem;
           line-height: 0.6rem;
           text-align: center;
+          font-size: 0.4rem;
           margin-left: 0.1rem;
           border-bottom: 0.02rem solid #9f9f9f;
           &:hover {
@@ -108,12 +112,28 @@ export default {
     font-size: 0.24rem;
   }
   .screen-view {
+    width: 100%;
     height: 1.5rem;
     line-height: 1.5rem;
-    font-size: 0.8rem;
+    font-size: 0.6rem;
     font-weight: 500;
     padding-right: 0.4rem;
     text-align: right;
+    overflow: auto;
+    // &::-webkit-scrollbar {
+    //   width: 0.1rem;
+    //   height: 0.16rem;
+    //   background-color: #aaa;
+    // }
+    // &::-webkit-scrollbar-button {
+    //   content: '';
+    //   border: 0.1rem solid blue;
+    //   border-top: transparent;
+    //   background-color: blue;
+    // }
+    // &:decrement {
+    //   background-color: blue;
+    // }
   }
 }
 </style>

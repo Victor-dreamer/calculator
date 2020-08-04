@@ -1,14 +1,18 @@
 <template>
-  <div class="content">
-    <div class="bitKeyboard">
-      <input v-for="(item, index) in this.array" :key="index" type="button"
-      :value="item" @click="change(index)"
-      :class="'item'+(index>3?index%4:index)">
+  <div class="bitKeyboard">
+      <div v-for="(arr, arrindex) of this.array" :key="arrindex" class="bitKeyboard-array">
+        <input v-for="(num, numindex) of arr"
+        :key="numindex"  :class="[num===1?'bitKeyboard-array-item is-one':'bitKeyboard-array-item']"
+        type="button" :value="num"
+        @click="changeValue(arrindex, numindex)"/>
+        <div class="bitKeyboard-index">{{64-(arrindex+1)*4}}</div>
+      </div>
     </div>
-  </div>
 </template>
 
 <script>
+import { mapState } from 'vuex'
+
 export default {
   name: 'bitKeyboard',
   props: {
@@ -19,12 +23,41 @@ export default {
   },
   data: function () {
     return {
-      array: new Array(64).fill(0)
+      array: [
+        new Array(4).fill(0),
+        new Array(4).fill(0),
+        new Array(4).fill(0),
+        new Array(4).fill(0),
+        new Array(4).fill(0),
+        new Array(4).fill(0),
+        new Array(4).fill(0),
+        new Array(4).fill(0),
+        new Array(4).fill(0),
+        new Array(4).fill(0),
+        new Array(4).fill(0),
+        new Array(4).fill(0),
+        new Array(4).fill(0),
+        new Array(4).fill(0),
+        new Array(4).fill(0),
+        new Array(4).fill(0)
+      ]
     }
   },
   computed: {
+    ...mapState(['screenShow']),
+    binArray: function () {
+      let temp = []
+      for (let i = 0; i < this.array.length; i++) {
+        temp = temp.concat(this.array[i])
+      }
+      return temp
+    },
     res: function () {
-      return this.getDEG(this.array)
+      if (this.systemType === 10) {
+        return this.getDEC(this.binArray)
+      } else {
+        return parseInt(this.binArray.join(''), 2).toString(this.systemType)
+      }
     }
   },
   watch: {
@@ -45,42 +78,78 @@ export default {
         }
       } else {
         for (let i = 0; i < val; i++) {
+          // 只修改表现，没有修改array，得改
+          // 初步修改
+          this.array[Math.floor(i / 4)].splice(i % 4, 1, 0)
           bt[i].disabled = 'disabled'
         }
       }
     },
-    change (index) {
-      const val = this.array[index] === 1 ? 0 : 1
-      this.array.splice(index, 1, val)
+    changeValue (arrindex, numindex) {
+      const temp = this.array[arrindex]
+      const val = this.array[arrindex][numindex] = this.array[arrindex][numindex] === 1 ? 0 : 1
+      temp.splice(numindex, 1, val)
+      this.array.splice(arrindex, 1, temp)
     },
     changeAccuracy () {
       this.accuracy = 32
     },
     // 获取十进制
-    getDEG (arr) {
-      let flag = 1
+    getDEC (arr) {
       let temp
       if (arr[this.accuracy] === 1 || arr[this.accuracy] === '1') { // 负数
-        flag = -1
-        temp = (parseInt(this.getNeg(arr.slice(this.accuracy + 1)).join(''), 2) + 1)
+        // let temp = arr.slice(this.accuracy + 1)
+        temp = parseInt(this.getNeg(arr.slice(this.accuracy + 1)).join(''), 2) + 1
+        temp = temp * -1
       } else {
         temp = parseInt(arr.join(''), 2)
       }
-      return temp * flag
+      return temp
+    },
+    // 二进制加1
+    getAddOne (arr) {
+      let i = arr.length - 1
+      while (i >= 0) {
+        if (arr[i] + 1 >= 2) {
+          arr[i] = 0
+          i--
+        } else {
+          arr[i] = 1
+          break
+        }
+      }
+      // console.log('加一：' + arr)
+      return arr
     },
     // 按位取反
     getNeg (arr) {
       const temp = arr.map((val) => {
-        if (val === 1) {
+        if (val + 1 >= 2) {
           return 0
         } else {
           return 1
         }
       })
       return temp
+    },
+    showCurrentNum () {
+      if (this.screenShow === 0) {
+        return
+      }
+      let num = parseInt(this.screenShow, this.systemType).toString(2)
+
+      let numarr = num.split('')
+      while (numarr.length % 4 !== 0) {
+        numarr.splice(0, 0, 0)
+      }
+      let start = numarr.length / 4
+      for (let i = 0; i < start; i++) {
+        this.array.splice(16 - start + i, 1, numarr.slice(i * 4, 4))
+      }
     }
   },
   mounted: function () {
+    this.showCurrentNum()
     this.changeButtonDis(this.accuracy)
   }
 }
@@ -93,29 +162,32 @@ export default {
 
 .bitKeyboard {
   width: 100%;
+  margin-bottom: 0.2rem;
   display: flex;
-  flex-flow: row wrap;
-  align-content: flex-start;
-  input {
-    flex: 0 0 5%;
-    display: inline-block;
-    width: 5%;
-    height: 0.76rem;
-    line-height: 0.76rem;
-    text-align: center;
-    font-size: 0.4rem;
-    border: none;
-    margin: 0.04rem 0;
-    outline: none;
-    background: none;
+  flex-wrap: wrap;
+  justify-items: flex-start;
+  .bitKeyboard-array {
+    flex: 0 0 21%;
+    margin: 0 0.2rem;
+    text-align: right;
+    .bitKeyboard-array-item {
+      display: inline-block;
+      width: 25%;
+      text-align: right;
+      border: none;
+      outline:none;
+      font-size: 0.36rem;
+      font-weight: 700;
+      background-color: transparent
+    }
+    .is-one {
+      color: #4599db;
+    }
   }
-  .item0,
-  .item1,
-  .item2 {
-    margin-right: 0.2%;
-  }
-  .item3 {
-    margin-right: 4%;
+  .bitKeyboard-index {
+    text-align: right;
+    font-size: 0.2rem;
+    margin-right: 0.1rem;
   }
 }
 </style>

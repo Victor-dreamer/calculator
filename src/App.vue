@@ -12,6 +12,12 @@
       <div v-else>
         <Standard></Standard>
       </div>
+      <div v-if="showMemory">
+        <div class="hideBg" @click="changeShowMemory"></div>
+        <div class="memory">
+          <Memory></Memory>
+        </div>
+      </div>
     </div>
     <!-- <div class="cal-right">
       <div class="cal-right-title">
@@ -27,9 +33,6 @@
         <History></History>
       </div>
     </div> -->
-    <div class="memory" v-if="showMemoryList">
-      <Memory></Memory>
-    </div>
   </div>
 </template>
 
@@ -69,7 +72,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(['calType']),
+    ...mapState(['calType', 'showMemory']),
     isHistory: function () {
       if (this.current === 0) {
         return 'current'
@@ -86,6 +89,9 @@ export default {
     }
   },
   methods: {
+    changeShowMemory () {
+      this.$store.commit('changeShowMemory', !this.showMemory)
+    },
     changeCurrent (val) {
       this.current = val
     }
@@ -96,59 +102,71 @@ export default {
 <style lang="scss">
 // @import url(./style/common.scss);
 #app {
-  position: relative;
   display: table;
   margin: 0.5rem auto;
   width: 80%;
   // min-width: 10rem;
   height: 12rem;
-  background-color: rgba(200, 200, 200, 0.7);
+  background-color: $themeColor;
   border: 0.02rem solid #000000;
-  box-shadow: 0 0 0.33rem #666;
+  box-shadow: 0 0 0.33rem #999;
   padding: 0.1rem;
   .cal-left {
+    position: relative;
     min-width: 6.8rem;
     display: table-cell;
-    background-color: rgba(200, 200, 200, 0.7);
+    background-color: $themeColor;
     .title {
       margin: 0 0 0.2rem 0;
       width: 1.6rem;
       font-size: 0.4rem;
       text-align: center;
     }
+    .hideBg {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+      background-color: #999;
+      opacity: 0.5;
+    }
+    .memory {
+      // display: none;
+      width: 100%;
+      height: 6.3rem;
+      position: absolute;
+      z-index: 3;
+      bottom: 0;
+      left: 0;
+      background-color: #f1f1f1;
+    }
   }
-  .memory {
-    width: 100%;
-    height: 6.3rem;
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    background-color: #f1f1f1;
+  .cal-right {
+    display: table-cell;
+    // 暂时设置为隐藏，后续需要改为自适应显示
+    display: none;
+    position: relative;
+    width: 6rem;
+    height: 10rem;
+    background-color: rgba(200, 200, 200, 0.7);
+    .cal-right-title {
+      div {
+        display: inline-block;
+        vertical-align: middle;
+      }
+      span {
+        @include spanText(1rem);
+        margin: 0.2rem 0.2rem;
+        font-size: 0.32rem;
+        font-weight: 700;
+        border-bottom: 0.08rem solid rgba(200, 200, 200, 0);
+      }
+      .current {
+        border-bottom: 0.08rem solid #0080ff;
+      }
+    }
   }
-  // .cal-right {
-  //   display: table-cell;
-  //   // 暂时设置为隐藏，后续需要改为自适应显示
-  //   display: none;
-  //   position: relative;
-  //   width: 6rem;
-  //   height: 10rem;
-  //   background-color: rgba(200, 200, 200, 0.7);
-  //   .cal-right-title {
-  //     div {
-  //       display: inline-block;
-  //       vertical-align: middle;
-  //     }
-  //     span {
-  //       @include spanText(1rem);
-  //       margin: 0.2rem 0.2rem;
-  //       font-size: 0.32rem;
-  //       font-weight: 700;
-  //       border-bottom: 0.08rem solid rgba(200, 200, 200, 0);
-  //     }
-  //     .current {
-  //       border-bottom: 0.08rem solid #0080ff;
-  //     }
-  //   }
-  // }
 }
 </style>

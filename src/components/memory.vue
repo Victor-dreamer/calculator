@@ -1,19 +1,19 @@
 <template>
   <div class="memory">
-    <div v-if="showMemoryList.length" class="memory-list">
-      <div v-for="(item, index) in showMemoryList" v-bind:key="index" class="memory-item" @click="memoryUse(showMemoryList.length-(index+1))">
+    <div v-if="memoryList.length" class="memory-list">
+      <div v-for="(item, index) in memoryList" v-bind:key="index" class="memory-item" @click="memoryUse(memoryList.length-(index+1))">
         <div class="memory-item-val">{{ item }}</div>
         <div class="memory-item-operator">
-          <span @click="memoryCut(showMemoryList.length-(index+1))">MC</span>
-          <span @click="memoryChange([1, showMemoryList.length-(index+1)])">M+</span>
-          <span @click="memoryChange([0, showMemoryList.length-(index+1)])">M-</span>
+          <span @click="memoryCut(memoryList.length-(index+1))">MC</span>
+          <span @click="memoryChange([1, memoryList.length-(index+1)])">M+</span>
+          <span @click="memoryChange([0, memoryList.length-(index+1)])">M-</span>
         </div>
       </div>
     </div>
-    <div v-else>
+    <div v-else class="no-text">
       暂时没有内存记录
     </div>
-    <div class="delete">
+    <div class="delete" v-if="memoryList.length">
       <span @click="deleteMemory">Del</span>
     </div>
   </div>
@@ -30,8 +30,13 @@ export default {
     }
   },
   computed: {
-    ...mapState(['screenShow']),
-    ...mapGetters(['showMemoryList'])
+    ...mapState(['screenShow', 'systemType']),
+    ...mapGetters(['showMemoryList']),
+    memoryList: function () {
+      return this.showMemoryList.map((item) => {
+        return item.toString(this.systemType)
+      })
+    }
   },
   methods: {
     memoryCut (index) {
@@ -96,13 +101,16 @@ export default {
       }
     }
   }
+  .no-text {
+    font-size: 0.5rem;
+  }
   .delete {
     // position: absolute;
     // right: 0;
     // bottom: 0;
     width: 100%;
     height: 1rem;
-    background-color: rgba($color: #999, $alpha: 0.5);
+    background-color: $themeColor;
     span {
       float: right;
       height: 100%;
@@ -112,7 +120,7 @@ export default {
       text-align: center;
       font-size: 0.4rem;
       &:hover {
-        background-color: #999;
+        background-color: $buttonHoverColor;
       }
     }
   }

@@ -19,10 +19,11 @@
       </div>
     </div>
     <div class="programmer-menu">
-      <div @click="()=>{this.menu=1}" class="iconfont">&#xe708;</div>
-      <div @click="()=>{this.menu=0}" class="iconfont">&#xe954;</div>
+      <div @click="()=>{this.menu=1}" :class="[(menu===1)?'iconfont current':'iconfont']">&#xe708;</div>
+      <div @click="()=>{this.menu=0}" :class="[(menu===0)?'iconfont current':'iconfont']">&#xe954;</div>
       <div class="chooseSystem" @click="changeAccuracy">{{ showAccuracy }}</div>
-      <div class="memory-button" @click="memorySave()">MC</div>
+      <span class="memory-button"><button @click="changeShowMemory" :disabled="!this.memoryList.length">M</button></span>
+      <span class="memory-button" @click="memorySave()"><button>MS</button></span>
     </div>
     <div v-if="menu" class="programmer-content">
       <div class="programmer-button">
@@ -35,7 +36,7 @@
         <div class="programmer-button-item"><button class="background" @click="inputOperator('&')">And</button></div>
         <!-- 2 -->
         <div class="programmer-button-item"><button class="background">↑</button></div>
-        <div class="programmer-button-item"><button class="background">Mod</button></div>
+        <div class="programmer-button-item"><button class="background" @click="inputOperator('%')">Mod</button></div>
         <div class="programmer-button-item"><button class="background" @click="clearInput">CE</button></div>
         <div class="programmer-button-item"><button class="background" @click="clearAll">C</button></div>
         <div class="programmer-button-item"><button class="background" @click="clearOne">←</button></div>
@@ -111,7 +112,7 @@
       </div>
     </div>
     <div v-else>
-      <bitKeyboard :accuracy="accuracy"></bitKeyboard>
+      <bitKeyboard :accuracy="accuracy" :systemType="systemType"></bitKeyboard>
     </div>
   </div>
 </template>
@@ -128,7 +129,6 @@ export default {
   data: function () {
     return {
       menu: 1,
-      systemType: 10,
       isbitkeyboard: false,
       bitkeyboardType: 64,
       // 存放输入的数字信息
@@ -154,7 +154,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(['currentNum']),
+    ...mapState(['currentNum', 'memoryList', 'showMemory', 'systemType']),
     accuracyType: function () {
       switch (this.accuracy) {
         case 32:
@@ -177,12 +177,11 @@ export default {
     showDEC: function () {
       // 判断当前输入的数值是否超过当前精度所能表示的最大正数
       // 若超过，表示为负数
-      if (this.currentShow > Math.pow(2, this.accuracyType - 1) - 1) {
-        return this.getDEC(this.inputScren)
+      if (this.currentShow > Math.pow(2, this.accuracyType - 1)) {
+        return this.getDEC(parseInt(this.currentShow, this.systemType).toString(2).split(''))
       } else {
         return parseInt(this.currentShow, this.systemType)
       }
-      // return parseInt(this.currentShow, this.systemType)
     },
     showHEX: function () {
       return parseInt(this.showBIN, 2).toString(16)
@@ -225,6 +224,9 @@ export default {
     //   }
     // },
 
+    changeShowMemory () {
+      this.$store.commit('changeShowMemory', !this.showMemory)
+    },
     // 判断是否操作符
     isOperator (sign) {
       // eslint-disable-next-line no-useless-escape
@@ -275,7 +277,7 @@ export default {
       }
       this.$store.commit('commitCurrentNum', num)
       this.inputScren = []
-      this.systemType = val
+      this.$store.commit('changeSystemType', val)
     },
     // 输入及计算操作
     // 输入括号
@@ -388,20 +390,21 @@ export default {
         this.expressions.pop()
       }
       // 对不同进制进行转换
-      let reg16 = /^([0-9|a-z|A-Z]*)$/
+      let reg16 = /^([0-9|a-f|A-F]*)$/
       let exp = this.expressions.join(' ').replace(new RegExp('×', 'g'), '*').replace(new RegExp('÷', 'g'), '/').split(' ')
       let arr = exp.map((item) => {
-        if (!isNaN(item) || reg16.test(item)) {
+        if (item === '|') {
+          return item
+        } else if (!isNaN(item) || reg16.test(item)) {
           // 将参与运算的数字转成10进制的
           return parseInt(item, this.systemType)
         } else {
           return item
         }
       })
-      console.log(exp)
+      console.log('表达式：' + exp)
+      console.log('表达式：' + arr)
       let res = this.computeExpression(this.changeExpression(arr))
-      // eslint-disable-next-line no-eval
-      // let res = eval(exp.replace(new RegExp('×', 'g'), '*').replace(new RegExp('÷', 'g'), '/')) // 将乘号和除号转为运算符
       // 对结果进行精度判断
       res = this.accuracyLimmit(res)
       // 判断是否转换负数
@@ -447,7 +450,8 @@ export default {
     },
     // 内存操作
     memorySave () {
-      this.$store.commit('memorySave', this.currentShow)
+      let value = parseInt(this.currentShow, this.systemType)
+      this.$store.commit('memorySave', value)
     },
     // 将负数十进制转为2进制补码
     getComplement (num) {
@@ -469,7 +473,6 @@ export default {
     getDEC (arr) {
       if ((arr[0] === 1 || arr[0] === '1') && arr.length === this.accuracyType) {
         let temp = (parseInt(this.getNegArr(arr.slice(1)).join(''), 2) + 1)
-        // let temp = ~(parseInt(arr.join(''), 2) - 1)
         // console.log('转换了' + temp)
         return temp * -1
       } else {
@@ -479,10 +482,10 @@ export default {
     // 二进制加1
     getAddOne (arr) {
       let i = arr.length - 1
-      while (i > 0) {
+      while (i >= 0) {
         if (arr[i] + 1 >= 2) {
           arr[i] = 0
-          i++
+          i--
         } else {
           arr[i] = 1
           break
@@ -578,42 +581,70 @@ export default {
             num2 = stack.pop()
             num3 = num2 + num1
             stack.push(num3)
-            console.log('计算结果' + num3)
+            // console.log('计算结果' + num3)
             break
           case '-':
             num1 = stack.pop()
             num2 = stack.pop()
             num3 = num2 - num1
             stack.push(num3)
-            console.log('计算结果' + num3)
+            // console.log('计算结果' + num3)
             break
           case '*':
             num1 = stack.pop()
             num2 = stack.pop()
             num3 = num2 * num1
             stack.push(num3)
-            console.log('计算结果' + num3)
+            // console.log('计算结果' + num3)
             break
           case '/':
             num1 = stack.pop()
             num2 = stack.pop()
-            num3 = num2 / num1
+            num3 = Math.floor(num2 / num1)
             stack.push(num3)
-            console.log('计算结果' + num3)
+            // console.log('计算结果' + num3)
             break
           case '%':
             num1 = stack.pop()
             num2 = stack.pop()
             num3 = num2 % num1
             stack.push(num3)
-            console.log('计算结果' + num3)
+            // console.log('计算结果' + num3)
             break
           case 'Lsh':
             num1 = stack.pop()
             num2 = stack.pop()
             num3 = num2 << num1
             stack.push(num3)
-            console.log('计算结果' + num3)
+            // console.log('计算结果' + num3)
+            break
+          case 'Rsh':
+            num1 = stack.pop()
+            num2 = stack.pop()
+            num3 = num2 >> num1
+            stack.push(num3)
+            // console.log('计算结果' + num3)
+            break
+          case '&':
+            num1 = stack.pop()
+            num2 = stack.pop()
+            num3 = num2 & num1
+            stack.push(num3)
+            // console.log('计算结果' + num3)
+            break
+          case '|':
+            num1 = stack.pop()
+            num2 = stack.pop()
+            num3 = num2 | num1
+            stack.push(num3)
+            // console.log('计算结果' + num3)
+            break
+          case '^':
+            num1 = stack.pop()
+            num2 = stack.pop()
+            num3 = num2 ^ num1
+            stack.push(num3)
+            // console.log('计算结果' + num3)
             break
           default:
             break
@@ -635,14 +666,6 @@ export default {
   url('//at.alicdn.com/t/font_1979566_tsokmuxv2bn.ttf') format('truetype'),
   url('//at.alicdn.com/t/font_1979566_tsokmuxv2bn.svg#iconfont') format('svg');
 }
-.iconfont {
-  font-family: "iconfont" !important;
-  font-size: 0.32rem;
-  font-style: normal;
-  -webkit-font-smoothing: antialiased;
-  -webkit-text-stroke-width: 0.004rem;
-  -moz-osx-font-smoothing: grayscale;
-}
 
 .programmer {
   display: flex;
@@ -650,14 +673,13 @@ export default {
   justify-content: flex-start;
   .programmer-system {
     flex: 1.5;
-    overflow: hidden;
     height: 2rem;
     .programmer-system-item {
       height: 22%;
       margin-top: 0.04rem;
-      border-left: 0.08rem solid rgba($color: #999, $alpha: 0);
+      border-left: 0.08rem solid transparent;
       &:hover {
-        background-color: rgba($color: #999, $alpha: 0.5);
+        background-color: $buttonHoverColor;
       }
       .system-val {
         float: left;
@@ -677,13 +699,26 @@ export default {
       }
     }
     .current-system {
-      border-left: 0.08rem solid #0080ff;
+      border-left: 0.08rem solid #0078d7;
     }
   }
   .programmer-menu {
     flex: 1;
     overflow: hidden;
     margin-top: 0.2rem;
+    .iconfont {
+      font-family: "iconfont" !important;
+      font-size: 0.32rem;
+      font-style: normal;
+      -webkit-font-smoothing: antialiased;
+      -webkit-text-stroke-width: 0.004rem;
+      -moz-osx-font-smoothing: grayscale;
+      border-bottom: 0.04rem solid transparent;
+    }
+    .current {
+      color: #4599db;
+      border-bottom-color: #4599db;
+    }
     div {
       width: 16.2%;
       height: 0.8rem;
@@ -691,18 +726,48 @@ export default {
       margin-right: 0.04rem;
       text-align: center;
       float: left;
-      &:hover {
-        background-color: rgba($color: #999, $alpha: 0.5);
-      }
+      border: 0.02rem solid transparent;
+      // &:hover {
+      //   background-color: $buttonHoverColor;
+      //   border: 0.02rem solid #a8a8a8;
+      // }
     }
     .chooseSystem {
       width: 16.2%;
       margin: 0 1rem;
       font-size: 0.28rem;
+      &:hover {
+        background-color: $buttonHoverColor;
+        border: 0.02rem solid #a8a8a8;
+      }
     }
     .memory-button {
+      width: 1.5rem;
       float: right;
       font-size: 0.28rem;
+      height: 0.8rem;
+      button {
+        width: 100%;
+        height: 100%;
+        text-align: center;
+        padding: 0;
+        margin: 0;
+        border: none;
+        font-size: 0.28rem;
+        outline: none;
+        background-color: transparent;
+        border: 0.02rem solid transparent;
+        &:hover {
+          background-color: $buttonHoverColor;
+          border: 0.02rem solid #a8a8a8;
+        }
+      }
+      button[disabled] {
+        &:hover {
+          background-color: transparent;
+          border: 0.02rem solid transparent;
+        }
+      }
     }
   }
   .programmer-content {
@@ -723,7 +788,7 @@ export default {
         line-height: 1rem;
         text-align: center;
         font-size: 0.4rem;
-        margin: 0.02rem 0;
+        margin: 0.04rem 0;
         button {
           padding: 0;
           margin: 0;
@@ -734,24 +799,24 @@ export default {
           position: absolute;
           left: 0;
           top: 0;
-          background-color: rgba($color: #fff, $alpha: 0.8);
-          border: 0.02rem solid rgba($color: #000000, $alpha: 0);
+          background-color: $buttonNumColor;
+          border: 0.02rem solid transparent;
           &:hover {
-            background-color: rgba($color: #999, $alpha: 0.5);
-            border: 0.02rem solid rgba($color: #999999, $alpha: 1);
+            background-color: $buttonHoverColor;
+            border: 0.02rem solid #a8a8a8;
           }
         }
         button[disabled] {
           &:hover {
-            background-color: rgba($color: #fff, $alpha: 0.8);
-            border: 0.02rem solid rgba($color: #999999, $alpha: 0);
+            background-color: $buttonNumColor;
+            border: 0.02rem solid transparent;
           }
         }
         .operator:hover {
-          background-color: rgba($color: #0080ff, $alpha: 0.8);
+          background-color: rgba($color: #4599db, $alpha: 0.8);
         }
         .background {
-          background-color: rgba($color: #eeeeee, $alpha: 0.5);
+          background-color: #eeeeee;
         }
       }
     }
